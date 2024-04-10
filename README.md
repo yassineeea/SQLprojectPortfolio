@@ -16,28 +16,28 @@ To navigate the data analyst job market, I enlisted a powerful toolkit:
 
 # Data Exploration
 
-### Total number of patients and their average wait time
+### 1. Total number of patients and their average wait time
 
 The following query calculates the total number of patients and their average wait time...
-
+```sql
 select Sum(Number_In) as NumberOfPatients, AVG(Patient_WaitTime) as AverageWaitTime
 from WaitingTime
 Group by Number_In
 order by AverageWaitTime Asc
-
-### Comparison of Total Patient Waiting Time vs Waiting Time in the guichet
+```
+### 2. Comparison of Total Patient Waiting Time vs Waiting Time in the guichet
 
 This query compares the total patient waiting time with the time spent waiting in the guichet...
-
+```sql
 select Patient_WaitTime, waitTime_guichet1, (waitTime_guichet1/Patient_WaitTime)*100 as GuichetTimePourcentage
 from WaitingTime 
 where Patient_WaitTime <> 0
 order by GuichetTimePourcentage Desc
-
-### Correlation between Patient Time and Number of Patients in the hospital
+```
+### 3. Correlation between Patient Time and Number of Patients in the hospital
 
 This query calculates the correlation between the number of patients in the hospital and the patient wait time...
-
+```sql
 SELECT
   (SUM(Number_In * Patient_WaitTime) - (SUM(Number_In) * SUM(Patient_WaitTime)) / COUNT(*) )
   / SQRT(
@@ -45,26 +45,26 @@ SELECT
     * (SUM(POWER(Patient_WaitTime, 2)) - POWER(SUM(Patient_WaitTime), 2) / COUNT(*))
   ) as correlation
 FROM WaitingTime;
+```
 
 
 
+# Data Cleaning
 
-## Data Cleaning
-
-### Standardizing the date
+### 1. Standardizing the date
 
 The 'Patient-ArrivalTime' column was standardized to a date format using the following query
-
+```sql
 Alter Table WaitingTime
 Add ArrivalTimeConverted Date;
 
 Update WaitingTime
 SET  ArrivalTimeConverted =  CONVERT(Date, [Patient-ArrivalTime]) 
-
-### Populating property address data
+```
+### 2. Populating property address data
 
 The 'PatientAddress' column was split into 'PatientSplitAddress' and 'PatientAddressCity' using the following query.
-
+```sql
 Select PatientAddress,
 Substring (PatientAddress, 1, CHARINDEX(',', PatientAddress) - 1) as address,
 Substring (PatientAddress, CHARINDEX(',', PatientAddress) + 1, Len(PatientAddress)) as city
@@ -76,29 +76,35 @@ Add PatientSplitAddress Nvarchar(255);
 Update WaitingTime
 SET  PatientSplitAddress =  Substring (PatientAddress, 1, CHARINDEX(',', PatientAddress) - 1)
 
-### Removing outliers
+Alter Table WaitingTime
+Add PatientAddressCity Nvarchar(255);
+
+Update WaitingTime
+SET  PatientAddressCity =  Substring (PatientAddress, CHARINDEX(',', PatientAddress) + 1, Len(PatientAddress))
+```
+### 3. Removing outliers
 
 Rows with outlier values were removed using the following query...
-
+```sql
 DELETE FROM WaitingTime
 where waitTime_guichet1 > Patient_WaitTime 
 or waitTime_Payment > Patient_WaitTime 
 or waitTime_Pneumo > Patient_WaitTime 
 or  waitTime_Cardio > Patient_WaitTime 
 or  waitTime_IECG > Patient_WaitTime 
+```
 
-
-### Handling null values
+### 4. Handling null values
 
 Rows with null values in the 'PatientAddress' column were removed using the following query...
-
+```sql
 Delete from WaitingTime 
 Where PatientAddress is null 
-
-### Removing duplicates
+```
+### 5. Removing duplicates
 
 Duplicate rows were removed using the following query...
-
+```sql
 with rowNumCte As (
 select * ,
 ROW_NUMBER() OVER (
@@ -110,15 +116,15 @@ from WaitingTime
 Delete
 from rowNumCte
 where Row_Num > 1
-
-### Removing unused columns
+```
+### 6. Removing unused columns
 
 The unused columns 'PatientAddress1' and 'PatientAddress' were removed using the following query...
-
+```sql
 Alter Table WaitingTime 
 Drop column PatientAddress1, PatientAddress
 
-
+```
 
 
 ## Data Visualisation 
