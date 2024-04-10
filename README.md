@@ -1,10 +1,22 @@
-Introduction
+# Introduction
 
 The purpose of this project is to analyze patient wait times in a hospital setting. By exploring and cleaning the data, we aim to gain insights into factors that may influence wait times and suggest potential areas for improvement.
 
-Data Exploration
+Check out the SQL queries here: [project_sql folder](/project_sql/)
 
-Total number of patients and their average wait time
+## Tools Used ⛏️🧑🏽‍💻
+
+To navigate the data analyst job market, I enlisted a powerful toolkit:
+
+- **SQL:** It served as the foundation, enabling me to explore and clean database to extract valuable insights.
+- **Jupyter Notebook:** Utilized for implementing Python code to visualize the data and gain a deeper understanding of the patterns and trends within the patient wait times.
+- **Microsoft SQL Server Management Studio:** Provided a familiar environment for database interaction and executing SQL queries.
+- **Git and GitHub:** ensured seamless version control and collaboration by allowing me to track changes and share my SQL scripts and analysis.
+
+
+# Data Exploration
+
+### Total number of patients and their average wait time
 
 The following query calculates the total number of patients and their average wait time...
 
@@ -13,7 +25,7 @@ from WaitingTime
 Group by Number_In
 order by AverageWaitTime Asc
 
-Comparison of Total Patient Waiting Time vs Waiting Time in the guichet
+### Comparison of Total Patient Waiting Time vs Waiting Time in the guichet
 
 This query compares the total patient waiting time with the time spent waiting in the guichet...
 
@@ -22,7 +34,7 @@ from WaitingTime
 where Patient_WaitTime <> 0
 order by GuichetTimePourcentage Desc
 
-Correlation between Patient Time and Number of Patients in the hospital
+### Correlation between Patient Time and Number of Patients in the hospital
 
 This query calculates the correlation between the number of patients in the hospital and the patient wait time...
 
@@ -33,9 +45,13 @@ SELECT
     * (SUM(POWER(Patient_WaitTime, 2)) - POWER(SUM(Patient_WaitTime), 2) / COUNT(*))
   ) as correlation
 FROM WaitingTime;
-Data Cleaning
 
-Standardizing the date
+
+
+
+## Data Cleaning
+
+### Standardizing the date
 
 The 'Patient-ArrivalTime' column was standardized to a date format using the following query
 
@@ -45,7 +61,7 @@ Add ArrivalTimeConverted Date;
 Update WaitingTime
 SET  ArrivalTimeConverted =  CONVERT(Date, [Patient-ArrivalTime]) 
 
-Populating property address data
+### Populating property address data
 
 The 'PatientAddress' column was split into 'PatientSplitAddress' and 'PatientAddressCity' using the following query.
 
@@ -60,7 +76,7 @@ Add PatientSplitAddress Nvarchar(255);
 Update WaitingTime
 SET  PatientSplitAddress =  Substring (PatientAddress, 1, CHARINDEX(',', PatientAddress) - 1)
 
-Removing outliers
+### Removing outliers
 
 Rows with outlier values were removed using the following query...
 
@@ -72,14 +88,14 @@ or  waitTime_Cardio > Patient_WaitTime
 or  waitTime_IECG > Patient_WaitTime 
 
 
-Handling null values
+### Handling null values
 
 Rows with null values in the 'PatientAddress' column were removed using the following query...
 
 Delete from WaitingTime 
 Where PatientAddress is null 
 
-Removing duplicates
+### Removing duplicates
 
 Duplicate rows were removed using the following query...
 
@@ -95,7 +111,7 @@ Delete
 from rowNumCte
 where Row_Num > 1
 
-Removing unused columns
+### Removing unused columns
 
 The unused columns 'PatientAddress1' and 'PatientAddress' were removed using the following query...
 
@@ -105,5 +121,5 @@ Drop column PatientAddress1, PatientAddress
 
 
 
-Data Visualisation 
+## Data Visualisation 
 Correlation Map
